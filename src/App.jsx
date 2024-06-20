@@ -1,12 +1,11 @@
-import { useState } from "react";
-import Form from "./components/Form";
+import Posts from "./components/Posts/Posts.jsx";
 
 function App() {
-  const [valoreAttualeDelloStato, funzionePerAggiornareLoStato] = useState(0);
   return (
-    <>
-      <Form />
-    </>
+    <div className="App">
+      <h1>Lista dei Post</h1>
+      <Posts />
+    </div>
   );
 }
 
