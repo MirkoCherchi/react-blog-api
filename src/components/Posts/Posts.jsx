@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import CardPost from "./CardPost";
+import FormPost from "./NewPostForm";
 
 const apiUrl = import.meta.env.VITE_BASE_API_URL;
 
@@ -10,7 +11,7 @@ function Posts() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(apiUrl);
+        const response = await axios.get(`${apiUrl}/posts`);
         setPosts(response.data.data);
         console.log(response.data);
       } catch (error) {
@@ -22,6 +23,7 @@ function Posts() {
 
   return (
     <div className="posts-container">
+      <FormPost />
       {posts.map((post) => (
         <CardPost
           key={post.id}
