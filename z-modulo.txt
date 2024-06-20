@@ -1,0 +1,18 @@
+import { useState } from "react";
+
+function App() {
+  const [valoreAttualeDelloStato, funzionePerAggiornareLoStato] = useState(0);
+  return <></>;
+}
+
+export default App;
+
+
+-------
+
+
+const Main = () => {
+  return <></>;
+};
+
+export default Main;
