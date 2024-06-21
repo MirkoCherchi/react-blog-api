@@ -8,8 +8,9 @@ function NewPostForm() {
     title: "",
     content: "",
     category: "",
-    tags: [],
+    tags: [], // Assicurati che tags sia sempre inizializzato come array
     published: false,
+    img: null, // Aggiungi img nel formData iniziale
   });
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
@@ -38,13 +39,39 @@ function NewPostForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Verifica che categoryId sia un numero intero
+    const categoryIdInt = parseInt(formData.category, 10);
+    if (isNaN(categoryIdInt)) {
+      setError("Category Id deve essere un numero intero");
+      return;
+    }
+
+    // Verifica che tags sia un array di numeri
+    const tagsArray = formData.tags.map((tagId) => parseInt(tagId, 10));
+    if (!Array.isArray(tagsArray) || tagsArray.some(isNaN)) {
+      setError("Tags deve essere un array di numeri");
+      return;
+    }
+
+    const formDataToSend = new FormData();
+    formDataToSend.append("title", formData.title);
+    formDataToSend.append("content", formData.content);
+    formDataToSend.append("categoryId", categoryIdInt); // Cambia "category" in "categoryId"
+    formDataToSend.append("published", formData.published);
+
+    tagsArray.forEach((tagId) => {
+      formDataToSend.append("tags", tagId);
+    });
+
+    if (formData.img) {
+      formDataToSend.append("img", formData.img);
+    }
+
     try {
-      const response = await axios.post(`${apiUrl}/posts`, {
-        title: formData.title,
-        content: formData.content,
-        categoryId: formData.category,
-        tags: formData.tags,
-        published: formData.published,
+      const response = await axios.post(`${apiUrl}/posts`, formDataToSend, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log("Nuovo post creato:", response.data);
@@ -55,6 +82,7 @@ function NewPostForm() {
         category: "",
         tags: [],
         published: false,
+        img: null,
       });
       setError(null);
     } catch (error) {
@@ -66,14 +94,19 @@ function NewPostForm() {
   };
 
   const handleTagChange = (tagId) => {
-    const updatedTags = formData.tags.includes(tagId)
-      ? formData.tags.filter((tag) => tag !== tagId)
-      : [...formData.tags, tagId];
-
-    setFormData({
-      ...formData,
-      tags: updatedTags,
-    });
+    if (formData.tags.includes(tagId)) {
+      const updatedTags = formData.tags.filter((tag) => tag !== tagId);
+      setFormData({
+        ...formData,
+        tags: updatedTags,
+      });
+    } else {
+      const updatedTags = [...formData.tags, tagId];
+      setFormData({
+        ...formData,
+        tags: updatedTags,
+      });
+    }
   };
 
   const handlePublishedChange = () => {
@@ -135,6 +168,16 @@ function NewPostForm() {
             <label htmlFor={`tag-${tag.id}`}>{tag.name}</label>
           </div>
         ))}
+      </div>
+      <div>
+        <label>Image:</label>
+        <input
+          type="file"
+          onChange={(e) => {
+            const file = e.target.files[0];
+            setFormData({ ...formData, img: file });
+          }}
+        />
       </div>
       <div>
         <label>
