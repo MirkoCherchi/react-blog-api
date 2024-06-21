@@ -3,14 +3,14 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_BASE_API_URL;
 
-function NewPostForm() {
+function NewPostForm({ onNewPostCreated }) {
   const [formData, setFormData] = useState({
     title: "",
     content: "",
     category: "",
-    tags: [], // Assicurati che tags sia sempre inizializzato come array
+    tags: [],
     published: false,
-    img: null, // Aggiungi img nel formData iniziale
+    img: null,
   });
   const [categories, setCategories] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
@@ -39,14 +39,12 @@ function NewPostForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Verifica che categoryId sia un numero intero
     const categoryIdInt = parseInt(formData.category, 10);
     if (isNaN(categoryIdInt)) {
       setError("Category Id deve essere un numero intero");
       return;
     }
 
-    // Verifica che tags sia un array di numeri
     const tagsArray = formData.tags.map((tagId) => parseInt(tagId, 10));
     if (!Array.isArray(tagsArray) || tagsArray.some(isNaN)) {
       setError("Tags deve essere un array di numeri");
@@ -56,7 +54,7 @@ function NewPostForm() {
     const formDataToSend = new FormData();
     formDataToSend.append("title", formData.title);
     formDataToSend.append("content", formData.content);
-    formDataToSend.append("categoryId", categoryIdInt); // Cambia "category" in "categoryId"
+    formDataToSend.append("categoryId", categoryIdInt);
     formDataToSend.append("published", formData.published);
 
     tagsArray.forEach((tagId) => {
@@ -85,6 +83,11 @@ function NewPostForm() {
         img: null,
       });
       setError(null);
+
+      // Chiamiamo la funzione per aggiornare i post nel componente genitore
+      if (typeof onNewPostCreated === "function") {
+        onNewPostCreated();
+      }
     } catch (error) {
       console.error("Errore durante la creazione del nuovo post:", error);
       setError(
